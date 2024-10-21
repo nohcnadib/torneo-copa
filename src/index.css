@@ -2,6 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "SoccerTeam";
+  src: url("C:/Lb/pes/my-league-administrator/Soccer Team.otf") format("truetype");
+}
+@font-face {
+  font-family: "Scoreboard";
+  src: url("C:/Lb/pes/my-league-administrator/Soccer Scoreboard.otf") format("truetype");
+}
+/* Para Chrome, Safari, Edge y Opera */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Para Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+.w-30{
+  width: 7.5rem;
+}
+:root{
+  font-family: SoccerTeam;
+  font-weight: 100;
+  background-color: black;
+  color: white;
+}
+.tabla-resultados td{
+  font-family: Scoreboard;
+  text-align: center;
+}
+.tabla-resultados td > input{
+  @apply text-center justify-center bg-black
+}
 html{
   @apply text-white
 }
@@ -9,7 +44,10 @@ html{
   @apply flex w-fit border-2 rounded-full gap-2 py-4 border-white px-4 bg-black shadow-xl
 }
 button{
-  @apply px-4 py-2 flex justify-center items-center rounded-md
+  @apply px-4 py-2 flex justify-center items-center rounded-md cursor-pointer
+}
+button:disabled{
+  @apply bg-colorSecondaryDark hover:bg-colorSecondary text-black 
 }
 .btn-success{
   @apply bg-colorPrimary hover:bg-colorPrimaryDark text-white 
