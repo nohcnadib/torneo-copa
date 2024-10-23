@@ -20,16 +20,35 @@ const db = new sqlite3.Database(db_name, (err) => {
 
 // Endpoint para obtener equipos
 app.get('/equipos', (req, res) => {
-    const sql = 'SELECT * FROM equipo';
-    db.all(sql, [], (err, rows) => {
-      if (err) {
-        res.status(400).json({ error: err.message });
-        return;
-      }
-      res.json(rows);
-    });
+  const sql = `
+    SELECT e.*, 
+      (SELECT COUNT(*) FROM titulo WHERE equipo = e.id) AS titulos,
+      (SELECT COUNT(*) 
+        FROM partido
+        WHERE isDone = 1 AND (
+          (teamL = e.id AND (resultado90L + resultado120L) > (resultado90V + resultado120V)) OR 
+          (teamV = e.id AND (resultado90V + resultado120V) > (resultado90L + resultado120L))
+        )) AS partidos_ganados,
+      (SELECT SUM(CASE 
+          WHEN teamL = e.id THEN resultado90L + resultado120L 
+          WHEN teamV = e.id THEN resultado90V + resultado120V 
+          ELSE 0 END
+        ) 
+        FROM partido
+        WHERE isDone = 1
+      ) AS goles_favor
+    FROM equipo e;
+  `;
+
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
 });
-  
+
 // Función para barajar los equipos
 const shuffle = (array) => array.sort(() => Math.random() - 0.5);
 
@@ -243,7 +262,7 @@ app.get('/torneoActual', (req, res) => {
     }
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'No se encontró un torneo actual.' });
+      return res.status(200).json({ error: 'No se encontró un torneo actual.' });
     }
 
     const row = rows[0];
@@ -505,6 +524,36 @@ app.post('/setPartido', async (req, res) => {
   }
 });
 
+app.post('/finalizarTorneo', (req, res) => {
+  const { torneoId, equipoId } = req.body;
+
+  if (!torneoId || !equipoId) {
+    return res.status(400).json({ error: 'torneoId y equipoId son obligatorios.' });
+  }
+
+  // Iniciar una transacción para asegurar que ambas operaciones se completen o ninguna
+  db.serialize(() => {
+    // Actualizar el torneo para establecer isCurrent a 0
+    const updateTorneoQuery = `UPDATE torneo SET isCurrent = 0 WHERE id = ?`;
+    db.run(updateTorneoQuery, [torneoId], function (err) {
+      if (err) {
+        console.error('Error al actualizar el torneo:', err);
+        return res.status(500).json({ error: 'Error al actualizar el torneo' });
+      }
+
+      // Insertar el equipo ganador en la tabla titulo
+      const insertTituloQuery = `INSERT INTO titulo (equipo) VALUES (?)`;
+      db.run(insertTituloQuery, [equipoId], function (err) {
+        if (err) {
+          console.error('Error al insertar en la tabla titulo:', err);
+          return res.status(500).json({ error: 'Error al insertar en la tabla titulo' });
+        }
+
+        res.json({ message: 'Torneo finalizado correctamente', torneoId, equipoId });
+      });
+    });
+  });
+});
 
 
 const handleDBError = (res, err, message) => {

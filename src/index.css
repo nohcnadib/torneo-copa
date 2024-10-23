@@ -30,6 +30,9 @@ input[type=number] {
   background-color: black;
   color: white;
 }
+.btn-active{
+  @apply bg-colorPrimary rounded-none
+}
 .tabla-resultados td{
   font-family: Scoreboard;
   text-align: center;
