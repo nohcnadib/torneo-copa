@@ -4,11 +4,11 @@
 
 @font-face {
   font-family: "SoccerTeam";
-  src: url("C:/Lb/pes/my-league-administrator/Soccer Team.otf") format("truetype");
+  src: url("../Soccer\ Team.otf") format("truetype");
 }
 @font-face {
   font-family: "Scoreboard";
-  src: url("C:/Lb/pes/my-league-administrator/Soccer Scoreboard.otf") format("truetype");
+  src: url("../Soccer\ Scoreboard.otf") format("truetype");
 }
 /* Para Chrome, Safari, Edge y Opera */
 input[type=number]::-webkit-outer-spin-button,
