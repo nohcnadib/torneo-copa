@@ -29,9 +29,10 @@ module.exports = async (req, res) => {
     `;
     try {
       const { rows } = await client.execute(sql);
-      res.json(rows);
+      res.status(200).json(rows); // Asegúrate de devolver un código 200 en caso de éxito
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      console.error("Error al ejecutar la consulta:", err);
+      res.status(500).json({ error: "Error al obtener los equipos" });
     }
   } else {
     res.setHeader('Allow', ['GET']);

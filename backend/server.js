@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { createClient } = require('@libsql/client');
 
+// Configuración de dotenv
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
@@ -12,41 +12,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Configuración de LibSQL
-const client = createClient({
-  url: process.env.TURSO_DB_URL,
-  authToken: process.env.TURSO_DB_TOKEN,
-});
-
-// Endpoint para obtener equipos
-app.get('/equipos', async (req, res) => {
-  const sql = `
-    SELECT e.*, 
-      (SELECT COUNT(*) FROM titulo WHERE equipo = e.id) AS titulos,
-      (SELECT COUNT(*) 
-        FROM partido
-        WHERE isDone = 1 AND (
-          (teamL = e.id AND (resultado90L + resultado120L) > (resultado90V + resultado120V)) OR 
-          (teamV = e.id AND (resultado90V + resultado120V) > (resultado90L + resultado120L))
-        )) AS partidos_ganados,
-      (SELECT SUM(CASE 
-          WHEN teamL = e.id THEN resultado90L + resultado120L 
-          WHEN teamV = e.id THEN resultado90V + resultado120V 
-          ELSE 0 END
-        ) 
-        FROM partido
-        WHERE isDone = 1
-      ) AS goles_favor
-    FROM equipo e;
-  `;
-
-  try {
-    const { rows } = await client.execute(sql);
-    res.json(rows);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+// Importar el handler del endpoint /api/equipos
+const equiposHandler = require('../api/equipos'); // Asegúrate de que la ruta sea correcta
+// Definir el endpoint
+app.use('/api/equipos', equiposHandler);
 
 // Función para barajar los equipos
 const shuffle = (array) => array.sort(() => Math.random() - 0.5);
