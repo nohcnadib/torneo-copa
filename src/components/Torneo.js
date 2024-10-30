@@ -4,7 +4,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import { CheckIcon } from '@heroicons/react/outline';
-import { Football } from '@heroicons/react/outline';
 
 const Torneo = () => {
   const REACT_APP_API_URL = process.env.REACT_APP_API_URL || 'https://torneo-copa.vercel.app';
@@ -352,7 +351,7 @@ const Torneo = () => {
     }
   
     try {
-      const response = await fetch('http://localhost:5000/finalizarTorneo', {
+      const response = await fetch(`${REACT_APP_API_URL}/api/finalizarTorneo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
