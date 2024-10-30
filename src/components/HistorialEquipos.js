@@ -7,6 +7,7 @@ const HistorialEquipos = () => {
   const [orden, setOrden] = useState('titulos'); // Estado para manejar el criterio de orden
   const [isLoading, setIsLoading] = useState(false);
 
+  
   const fetchEquipos = async () => {
     try {
       const response = await fetch(`${REACT_APP_API_URL}/api/equipos`);
