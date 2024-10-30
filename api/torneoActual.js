@@ -115,9 +115,8 @@ module.exports = async (req, res) => {
       const { rows } = await client.execute(sql);
       
       if (rows.length === 0) {
-        return res.status(404).json({ message: "No se encontró el torneo actual." });
+        return res.status(200).json({ error: 'No se encontró un torneo actual.' });
       }
-  
       const row = rows[0];
 
       // Estructurar la respuesta
