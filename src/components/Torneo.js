@@ -33,7 +33,7 @@ const Torneo = () => {
 
   const fetchEquipos = async () => {
     try {
-      const response = await fetch(`${REACT_APP_API_URL}/equipos`);
+      const response = await fetch(`${REACT_APP_API_URL}/api/equipos`);
       const data = await response.json();
       setEquipos(data);
     } catch (error) {
