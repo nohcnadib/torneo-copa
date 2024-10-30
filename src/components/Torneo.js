@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import { CheckIcon } from '@heroicons/react/outline';
+import Loading from './Loading';
 
 const Torneo = () => {
   const REACT_APP_API_URL = process.env.REACT_APP_API_URL || 'https://torneo-copa.vercel.app';
@@ -16,11 +17,14 @@ const Torneo = () => {
   const [tournamentGenerated, setTournamentGenerated] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
   const [partidoSeleccionado, setPartidoSeleccionado] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fecthData = async () => {
+      setIsLoading(true)
       await fetchEquipos();
       await fetchTorneoActual();
+      setIsLoading(false)
     }
     fecthData()
   }, []);
@@ -76,6 +80,7 @@ const Torneo = () => {
   const generateTournament = async () => {
     const teamIds = selectedTeams.map(team => team.id);
     try {
+      setIsLoading(true)
       const response = await fetch(`${REACT_APP_API_URL}/api/generarTorneo`, {
         method: 'POST',
         headers: {
@@ -93,8 +98,10 @@ const Torneo = () => {
       } else {
         console.error("Error al generar el torneo.");
       }
+      setIsLoading(false)
     } catch (error) {
       console.error("Error al llamar al endpoint:", error);
+      setIsLoading(false)
     }
   };
 
@@ -134,6 +141,7 @@ const Torneo = () => {
 
     const handleConfirmarResultado = async () => {
       try {
+        setIsLoading(true)
         const response = await fetch(`${REACT_APP_API_URL}/api/setPartido`, {
           method: 'POST',
           headers: {
@@ -168,8 +176,10 @@ const Torneo = () => {
         }
         
         await fetchTorneoActual();
+        setIsLoading(false)
       } catch (error) {
         console.error('Error de red o en el servidor:', error);
+        setIsLoading(false)
       }
     };
 
@@ -186,31 +196,112 @@ const Torneo = () => {
                 <div>
                   <span className='text-lg'>90'</span>
                   <tr>
-                    <td><input type="number" value={resultado90L} onChange={(e) => setResultado90L(Number(e.target.value))} className="w-24 h-16 text-center" /></td>
-                    <td><div className='px-4' style={{marginRight: '-4px'}}>-</div></td>
-                    <td><input type="number" value={resultado90V} onChange={(e) => setResultado90V(Number(e.target.value))} className="w-24 h-16 text-center" /></td>
+                    <td>
+                      <input
+                        type="number"
+                        value={resultado90L}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          setResultado90L(value);
+                          // Restablecer resultados 120 y P a 0 si cambia 90
+                          setResultado120L(0);
+                          setResultado120V(0);
+                          setResultadoPL(0);
+                          setResultadoPV(0);
+                        }}
+                        className="w-24 h-16 text-center"
+                      />
+                    </td>
+                    <td>
+                      <div className='px-4' style={{ marginRight: '-4px' }}>-</div>
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={resultado90V}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          setResultado90V(value);
+                          // Restablecer resultados 120 y P a 0 si cambia 90
+                          setResultado120L(0);
+                          setResultado120V(0);
+                          setResultadoPL(0);
+                          setResultadoPV(0);
+                        }}
+                        className="w-24 h-16 text-center"
+                      />
+                    </td>
                   </tr>
                 </div>
                 {/* Marcador 120' */}
                 <div>
                   <span className='text-lg'>120'</span>
                   <tr>
-                    <td><input type="number" value={resultado120L} onChange={(e) => setResultado120L(Number(e.target.value))} className="w-24 h-16 text-center" /></td>
-                    <td><div className='px-4' style={{marginRight: '-4px'}}>-</div></td>
-                    <td><input type="number" value={resultado120V} onChange={(e) => setResultado120V(Number(e.target.value))} className="w-24 h-16 text-center" /></td>
+                    <td>
+                      <input
+                        type="number"
+                        value={resultado120L}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          setResultado120L(value);
+                          // Restablecer resultados P a 0 si cambia 120
+                          setResultadoPL(0);
+                          setResultadoPV(0);
+                        }}
+                        className="w-24 h-16 text-center"
+                        disabled={resultado90L !== resultado90V} // Deshabilitado si 90' son diferentes
+                      />
+                    </td>
+                    <td>
+                      <div className='px-4' style={{ marginRight: '-4px' }}>-</div>
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={resultado120V}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          setResultado120V(value);
+                          // Restablecer resultados P a 0 si cambia 120
+                          setResultadoPL(0);
+                          setResultadoPV(0);
+                        }}
+                        className="w-24 h-16 text-center"
+                        disabled={resultado90L !== resultado90V} // Deshabilitado si 90' son diferentes
+                      />
+                    </td>
                   </tr>
                 </div>
                 {/* Marcador Penales */}
                 <div>
-                  <span className='text-lg'>penales</span>
+                  <span className='text-lg'>Penales</span>
                   <tr>
-                    <td><input type="number" value={resultadoPL} onChange={(e) => setResultadoPL(Number(e.target.value))} className="w-24 h-16 text-center" /></td>
-                    <td><div className='px-4' style={{marginRight: '-4px'}}>-</div></td>
-                    <td><input type="number" value={resultadoPV} onChange={(e) => setResultadoPV(Number(e.target.value))} className="w-24 h-16 text-center" /></td>
+                    <td>
+                      <input
+                        type="number"
+                        value={resultadoPL}
+                        onChange={(e) => { setResultadoPL(Number(e.target.value)); }}
+                        className="w-24 h-16 text-center"
+                        disabled={resultado120L !== resultado120V || resultado90L !== resultado90V} // Deshabilitado si 120' o 90' son diferentes
+                      />
+                    </td>
+                    <td>
+                      <div className='px-4' style={{ marginRight: '-4px' }}>-</div>
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={resultadoPV}
+                        onChange={(e) => { setResultadoPV(Number(e.target.value)); }}
+                        className="w-24 h-16 text-center"
+                        disabled={resultado120L !== resultado120V || resultado90L !== resultado90V} // Deshabilitado si 120' o 90' son diferentes
+                      />
+                    </td>
                   </tr>
                 </div>
               </tbody>
             </table>
+
             <div className='w-full justify-center flex'>
               <img src={partido?.teamV?.logo ?? './assets/images/fakeLogo.png'} alt={partido?.teamV?.nombre} className="h-36" />
             </div>
@@ -351,6 +442,7 @@ const Torneo = () => {
     }
   
     try {
+      setIsLoading(true)
       const response = await fetch(`${REACT_APP_API_URL}/api/finalizarTorneo`, {
         method: 'POST',
         headers: {
@@ -369,139 +461,146 @@ const Torneo = () => {
       const data = await response.json();
       console.log('Torneo finalizado:', data);
       await fetchTorneoActual()
+      setIsLoading(false)
       // Aquí puedes hacer lo que necesites tras finalizar el torneo, como actualizar el estado o mostrar un mensaje.
     } catch (error) {
       console.error('Error:', error);
+      setIsLoading(false)
     }
   };
   
   return (
-    <div className='flex justify-center flex-col items-center'>
-      <h1 className="text-2xl font-bold mb-4">Gestión de Torneos</h1>
+    <>
+      {isLoading && 
+        <Loading></Loading>
+      }
+      <div className='flex justify-center flex-col items-center'>
+        <h1 className="text-2xl font-bold mb-4">Gestión de Torneos</h1>
 
-      {/* Modal para elegir equipos */}
-      <Modal isOpen={isModalOpenElegir} onClose={handleCloseModalElegir}>
-        <div className=''>
-          <h2 className="text-xl font-bold mb-4">
-            Seleccionar Equipos: {selectedTeams.length}/8
-          </h2>
-          
-          {/* Buscador */}
-          <input
-            type="text"
-            placeholder="Buscar por nombre"
-            className="border border-gray-300 p-2 mb-4 w-full bg-black"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        {/* Modal para elegir equipos */}
+        <Modal isOpen={isModalOpenElegir} onClose={handleCloseModalElegir}>
+          <div className=''>
+            <h2 className="text-xl font-bold mb-4">
+              Seleccionar Equipos: {selectedTeams.length}/8
+            </h2>
+            
+            {/* Buscador */}
+            <input
+              type="text"
+              placeholder="Buscar por nombre"
+              className="border border-gray-300 p-2 mb-4 w-full bg-black"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
 
-          <div className="grid grid-cols-4 gap-4">
-            {/* Renderizar los equipos con sus logos */}
-            {filteredEquipos.length > 0 ? (
-              filteredEquipos.map((equipo) => (
-                <div
-                  key={equipo.id}
-                  className="relative flex justify-center cursor-pointer"
-                  onClick={() => toggleSelectTeam(equipo)}
-                  title={equipo.nombre} // Tooltip con el nombre del equipo
-                >
-                  <img
-                    src={equipo.logo}
-                    alt="Logo equipo"
-                    className={`h-20 object-contain ${selectedTeams.some(t => t.id === equipo.id) ? 'opacity-50' : ''}`}
-                  />
-                  {selectedTeams.some(t => t.id === equipo.id) && (
-                    <CheckIcon className="absolute top-0 right-0 w-6 h-6 text-green-500" />
-                  )}
-                </div>
-              ))
-            ) : (
-              <p>No se encontraron equipos.</p>
-            )}
+            <div className="grid grid-cols-4 gap-4">
+              {/* Renderizar los equipos con sus logos */}
+              {filteredEquipos.length > 0 ? (
+                filteredEquipos.map((equipo) => (
+                  <div
+                    key={equipo.id}
+                    className="relative flex justify-center cursor-pointer"
+                    onClick={() => toggleSelectTeam(equipo)}
+                    title={equipo.nombre} // Tooltip con el nombre del equipo
+                  >
+                    <img
+                      src={equipo.logo}
+                      alt="Logo equipo"
+                      className={`h-20 object-contain ${selectedTeams.some(t => t.id === equipo.id) ? 'opacity-50' : ''}`}
+                    />
+                    {selectedTeams.some(t => t.id === equipo.id) && (
+                      <CheckIcon className="absolute top-0 right-0 w-6 h-6 text-green-500" />
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p>No se encontraron equipos.</p>
+              )}
+            </div>
+
+            <button
+              className={`mt-4 text-white rounded-md float-right ${selectedTeams.length !== 8 ? 'bg-gray-400' : 'bg-green-500'}`}
+              onClick={handleConfirmSelection}
+              disabled={selectedTeams.length !== 8} // Desactivar si no hay 8 seleccionados
+            >
+              Confirmar selección
+            </button>
           </div>
+        </Modal>
 
+        {!tournamentGenerated && !confirmado && !isModalOpenElegir && !torneoActual &&(
           <button
-            className={`mt-4 text-white rounded-md float-right ${selectedTeams.length !== 8 ? 'bg-gray-400' : 'bg-green-500'}`}
-            onClick={handleConfirmSelection}
-            disabled={selectedTeams.length !== 8} // Desactivar si no hay 8 seleccionados
+            className="bg-blue-500 text-white p-2 rounded-md flex flex-col"
+            onClick={openModalElegir}
           >
-            Confirmar selección
+            <svg xmlns="http://www.w3.org/2000/svg" height="50px" viewBox="0 -960 960 960" width="50px" fill="#e8eaed"><path d="M480-80q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Zm0-84q104-33 172-132t68-220v-189l-240-90-240 90v189q0 121 68 220t172 132Zm0-316Z"/></svg>
           </button>
-        </div>
-      </Modal>
+        )}
 
-      {!tournamentGenerated && !confirmado && !isModalOpenElegir && !torneoActual &&(
-        <button
-          className="bg-blue-500 text-white p-2 rounded-md"
-          onClick={openModalElegir}
-        >
-          Elegir equipos
-        </button>
-      )}
-
-      {confirmado && !torneoActual && selectedTeams.length > 0 && !tournamentGenerated && (
-        <div className="mt-4 flex justify-center items-center flex-col">
-          <h2 className="text-lg font-bold mb-2">Equipos seleccionados:</h2>
-          <div className="w-full">
-            <div className="selected-teams-container">
-              {selectedTeams.map(team => (
-                <div key={team.id} className="relative" title={team.nombre}>
-                  <img
-                    src={team.logo}
-                    alt={team.nombre}
-                    className="h-16 object-contain mx-1"
-                  />
-                </div>
-              ))}
+        {confirmado && !torneoActual && selectedTeams.length > 0 && !tournamentGenerated && (
+          <div className="mt-4 flex justify-center items-center flex-col">
+            <h2 className="text-lg font-bold mb-2">Equipos seleccionados:</h2>
+            <div className="w-full">
+              <div className="selected-teams-container">
+                {selectedTeams.map(team => (
+                  <div key={team.id} className="relative" title={team.nombre}>
+                    <img
+                      src={team.logo}
+                      alt={team.nombre}
+                      className="h-16 object-contain mx-1"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-2 flex gap-2">
+              <button 
+                className="btn-success"
+                onClick={generateTournament}
+              >
+                Generar Torneo
+              </button>
+              <button 
+                className="btn-secondary"
+                onClick={editSeleccion} // Usar la nueva función
+              >
+                Editar selección
+              </button>
             </div>
           </div>
-          <div className="mt-2 flex gap-2">
-            <button 
-              className="btn-success"
-              onClick={generateTournament}
-            >
-              Generar Torneo
-            </button>
-            <button 
-              className="btn-secondary"
-              onClick={editSeleccion} // Usar la nueva función
-            >
-              Editar selección
-            </button>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* Mostrar partidos del torneo actual */}
-      {torneoActual && (
-        <div className='flex gap-4'>
-          <div>
-            {torneoActual.cuartos && renderPartidos(torneoActual.cuartos, 'Cuartos de Final')}
+        {/* Mostrar partidos del torneo actual */}
+        {torneoActual && (
+          <div className='flex gap-4'>
+            <div>
+              {torneoActual.cuartos && renderPartidos(torneoActual.cuartos, 'Cuartos de Final')}
+            </div>
+            <div className='flex flex-col justify-between'>
+              {torneoActual.semifinales && renderPartidos(torneoActual.semifinales, 'Semifinales')}
+              {torneoActual.finales && renderPartidos(torneoActual.finales, 'Final')}
+            </div>
           </div>
-          <div className='flex flex-col justify-between'>
-            {torneoActual.semifinales && renderPartidos(torneoActual.semifinales, 'Semifinales')}
-            {torneoActual.finales && renderPartidos(torneoActual.finales, 'Final')}
-          </div>
-        </div>
-      )}
+        )}
 
-      {torneoActual?.finales?.partido?.isDone === 1 && 
-        <div className="flex justify-center mt-4">
-          <button 
-            className='btn-success gap-2 items-center justify-center'
-            onClick={finalizarTorneo} // Llama a la función finalizarTorneo
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
-              <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm200-500 54-18 16-54q-32-48-77-82.5T574-786l-54 38v56l160 112Zm-400 0 160-112v-56l-54-38q-54 17-99 51.5T210-652l16 54 54 18Zm-42 308 46-4 30-54-58-174-56-20-40 30q0 65 18 118.5T238-272Zm242 112q26 0 51-4t49-12l28-60-26-44H378l-26 44 28 60q24 8 49 12t51 4Zm-90-200h180l56-160-146-102-144 102 54 160Zm332 88q42-50 60-103.5T800-494l-40-28-56 18-58 174 30 54 46 4Z"/>
-            </svg>
-            Siguiente Torneo
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
-              <path fillRule="evenodd" d="M10 1c-1.828 0-3.623.149-5.371.435a.75.75 0 0 0-.629.74v.387c-.827.157-1.642.345-2.445.564a.75.75 0 0 0-.552.698 5 5 0 0 0 4.503 5.152 6 6 0 0 0 2.946 1.822A6.451 6.451 0 0 1 7.768 13H7.5A1.5 1.5 0 0 0 6 14.5V17h-.75C4.56 17 4 17.56 4 18.25c0 .414.336.75.75.75h10.5a.75.75 0 0 0 .75-.75c0-.69-.56-1.25-1.25-1.25H14v-2.5a1.5 1.5 0 0 0-1.5-1.5h-.268a6.453 6.453 0 0 1-.684-2.202 6 6 0 0 0 2.946-1.822 5 5 0 0 0 4.503-5.152.75.75 0 0 0-.552-.698A31.804 31.804 0 0 0 16 2.562v-.387a.75.75 0 0 0-.629-.74A33.227 33.227 0 0 0 10 1ZM2.525 4.422C3.012 4.3 3.504 4.19 4 4.09V5c0 .74.134 1.448.38 2.103a3.503 3.503 0 0 1-1.855-2.68Zm14.95 0a3.503 3.503 0 0 1-1.854 2.68C15.866 6.449 16 5.74 16 5v-.91c.496.099.988.21 1.475.332Z" clipRule="evenodd" />
-            </svg>
-          </button>
-        </div>
-      }
-    </div>
+        {torneoActual?.finales?.partido?.isDone === 1 && 
+          <div className="flex justify-center mt-4">
+            <button 
+              className='btn-success gap-2 items-center justify-center'
+              onClick={finalizarTorneo} // Llama a la función finalizarTorneo
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
+                <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm200-500 54-18 16-54q-32-48-77-82.5T574-786l-54 38v56l160 112Zm-400 0 160-112v-56l-54-38q-54 17-99 51.5T210-652l16 54 54 18Zm-42 308 46-4 30-54-58-174-56-20-40 30q0 65 18 118.5T238-272Zm242 112q26 0 51-4t49-12l28-60-26-44H378l-26 44 28 60q24 8 49 12t51 4Zm-90-200h180l56-160-146-102-144 102 54 160Zm332 88q42-50 60-103.5T800-494l-40-28-56 18-58 174 30 54 46 4Z"/>
+              </svg>
+              Siguiente Torneo
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+                <path fillRule="evenodd" d="M10 1c-1.828 0-3.623.149-5.371.435a.75.75 0 0 0-.629.74v.387c-.827.157-1.642.345-2.445.564a.75.75 0 0 0-.552.698 5 5 0 0 0 4.503 5.152 6 6 0 0 0 2.946 1.822A6.451 6.451 0 0 1 7.768 13H7.5A1.5 1.5 0 0 0 6 14.5V17h-.75C4.56 17 4 17.56 4 18.25c0 .414.336.75.75.75h10.5a.75.75 0 0 0 .75-.75c0-.69-.56-1.25-1.25-1.25H14v-2.5a1.5 1.5 0 0 0-1.5-1.5h-.268a6.453 6.453 0 0 1-.684-2.202 6 6 0 0 0 2.946-1.822 5 5 0 0 0 4.503-5.152.75.75 0 0 0-.552-.698A31.804 31.804 0 0 0 16 2.562v-.387a.75.75 0 0 0-.629-.74A33.227 33.227 0 0 0 10 1ZM2.525 4.422C3.012 4.3 3.504 4.19 4 4.09V5c0 .74.134 1.448.38 2.103a3.503 3.503 0 0 1-1.855-2.68Zm14.95 0a3.503 3.503 0 0 1-1.854 2.68C15.866 6.449 16 5.74 16 5v-.91c.496.099.988.21 1.475.332Z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        }
+      </div>
+    </>
   );
 };
 
