@@ -17,9 +17,6 @@ const equiposHandler = require('../api/equipos'); // Asegúrate de que la ruta s
 // Definir el endpoint
 app.use('/api/equipos', equiposHandler);
 
-// Función para barajar los equipos
-const shuffle = (array) => array.sort(() => Math.random() - 0.5);
-
 // Endpoint para generar el torneo
 app.post('/generarTorneo', (req, res) => {
   const { teamIds } = req.body;
@@ -29,7 +26,7 @@ app.post('/generarTorneo', (req, res) => {
   }
 
   // Barajar los equipos para los cuartos de final
-  const shuffledTeams = shuffle(teamIds);
+  const shuffledTeams = teamIds.sort(() => Math.random() - 0.5);
 
   db.serialize(() => {
     // Crear los 4 partidos de cuartos en la tabla `partido` con los equipos seleccionados
