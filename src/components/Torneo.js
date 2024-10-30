@@ -77,7 +77,7 @@ const Torneo = () => {
   const generateTournament = async () => {
     const teamIds = selectedTeams.map(team => team.id);
     try {
-      const response = await fetch('http://localhost:5000/generarTorneo', {
+      const response = await fetch(`${REACT_APP_API_URL}/api/generarTorneo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
