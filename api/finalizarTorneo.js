@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
 
       if (updateResult.rowsAffected === 0) {
         console.log("No se encontró el torneo o no se pudo actualizar.");
-        await client.execute({ sql: 'ROLLBACK;' });
+        await client.execute('ROLLBACK;' );
         return res.status(500).json({ error: 'Error al actualizar el torneo o torneo no encontrado' });
       }
 
@@ -54,19 +54,19 @@ module.exports = async (req, res) => {
 
       if (insertResult.rowsAffected === 0) {
         console.log("Error al insertar el equipo en la tabla título.");
-        await client.execute({ sql: 'ROLLBACK;' });
+        await client.execute('ROLLBACK;' );
         return res.status(500).json({ error: 'Error al insertar en la tabla titulo' });
       }
 
       // Confirmar ambas operaciones si todo fue exitoso
       console.log("Confirmando transacción...");
-      await client.execute({ sql: 'COMMIT;' });
+      await client.execute('COMMIT;' );
       res.json({ message: 'Torneo finalizado correctamente', torneoId, equipoId });
 
     } catch (err) {
       // Revertir la transacción en caso de error
       console.error("Error en la transacción, haciendo rollback:", err);
-      await client.execute({ sql: 'ROLLBACK;' });
+      await client.execute('ROLLBACK;' );
       res.status(500).json({ error: "Error al finalizar el torneo" });
     }
   } else {
