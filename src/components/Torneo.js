@@ -43,7 +43,7 @@ const Torneo = () => {
 
   const fetchTorneoActual = async () => {
     try {
-      const response = await fetch('http://localhost:5000/torneoActual');
+      const response = await fetch(`${REACT_APP_API_URL}/api/torneoActual`);
       const data = await response.json();
       console.log("data");
       console.log(data);
