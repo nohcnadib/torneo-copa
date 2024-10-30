@@ -19,12 +19,12 @@ module.exports = async (req, res) => {
     try {
       // Probar la conexión con Turso antes de comenzar la transacción
       console.log("Verificando conexión con Turso...");
-      const connectionTest = await client.execute({ sql: 'SELECT 1;' });
+      const connectionTest = await client.execute('SELECT 1;');
       console.log("Conexión verificada, resultado del test:", connectionTest);
 
       // Iniciar una transacción
       console.log("Iniciando transacción...");
-      await client.execute({ sql: 'BEGIN;' });
+      await client.execute('BEGIN;' );
 
       // Actualizar el torneo para establecer isCurrent a 0
       const updateTorneoQuery = `UPDATE torneo SET isCurrent = 0 WHERE id = ?`;
