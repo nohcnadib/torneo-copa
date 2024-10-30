@@ -7,7 +7,7 @@ const client = createClient({
 
 // Handler para el endpoint /api/generarTorneo
 module.exports = async (req, res) => {
-  if (req.method === 'GET') {
+  if (req.method === 'POST') {
     const { teamIds } = req.body;
     if (teamIds.length !== 8) {
       return res.status(400).json({ error: 'Se deben seleccionar exactamente 8 equipos.' });
@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
       res.status(500).json({ error: "Error al generar el torneo" });
     }
   } else {
-    res.setHeader('Allow', ['GET']);
+    res.setHeader('Allow', ['POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };
