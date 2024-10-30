@@ -27,9 +27,13 @@ module.exports = async (req, res) => {
         shuffledTeams[6], shuffledTeams[7]
       ]);
 
-      // Obtener el último ID insertado
-      const lastInsertedId = result.lastID; // Cambié a result.lastID para obtener el último ID
+      console.log("Partidos de cuartos insertados:", result); // Log para verificar el resultado de la inserción
 
+      // Obtener el último ID insertado
+      const lastInsertedId = result.lastID; // Asegúrate de que result.lastID esté definido
+      console.log("ID del último partido insertado:", lastInsertedId); // Log para verificar el ID
+
+      // Calcula los IDs de los partidos de cuartos
       const cuartosIds = [
         lastInsertedId - 3,
         lastInsertedId - 2,
@@ -37,36 +41,42 @@ module.exports = async (req, res) => {
         lastInsertedId
       ];
 
-      console.log("cuartosIds")
-      console.log(cuartosIds)
+      console.log("IDs de cuartos:", cuartosIds); // Log para verificar cuartosIds
+
       // Insertar en la tabla `cuartos`
       const { lastID: cuartosId } = await client.execute(`
         INSERT INTO cuartos (partido1, partido2, partido3, partido4) VALUES (?, ?, ?, ?)
       `, [...cuartosIds]);
+
+      console.log("ID de cuartos insertado:", cuartosId); // Log para verificar el ID de cuartos
 
       // Crear partidos de semifinales (sin definir teams todavía)
       const { lastID: semifinalesIds } = await client.execute(`
         INSERT INTO partido (teamL, teamV) VALUES (NULL, NULL), (NULL, NULL)
       `);
 
-      console.log("semifinalesIds")
-      console.log(semifinalesIds)
+      console.log("Partidos de semifinales insertados:", semifinalesIds); // Log para verificar semifinales
+
       // Insertar en la tabla `semifinales`
       const { lastID: semifinalesId } = await client.execute(`
         INSERT INTO semifinales (partido1, partido2) VALUES (?, ?)
       `, [semifinalesIds - 1, semifinalesIds]);
 
+      console.log("ID de semifinales insertado:", semifinalesId); // Log para verificar semifinales
+
       // Crear partido de la final (sin definir teams)
       const { lastID: finalId } = await client.execute(`
         INSERT INTO partido (teamL, teamV) VALUES (NULL, NULL)
       `);
-      console.log("finalId")
-      console.log(finalId)
+
+      console.log("Partido de final insertado:", finalId); // Log para verificar final
 
       // Insertar en la tabla `finales`
       const { lastID: finalTorneoId } = await client.execute(`
         INSERT INTO finales (partido1) VALUES (?)
       `, [finalId]);
+
+      console.log("ID de finales insertado:", finalTorneoId); // Log para verificar el ID de finales
 
       // Insertar en la tabla del torneo
       await client.execute(`

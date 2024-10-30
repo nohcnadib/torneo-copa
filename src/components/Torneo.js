@@ -7,7 +7,7 @@ import { CheckIcon } from '@heroicons/react/outline';
 import { Football } from '@heroicons/react/outline';
 
 const Torneo = () => {
-  const REACT_APP_API_URL = process.env.REACT_APP_API_URL || 'https://torneo-copa.vercel.app';
+  const REACT_APP_API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
   const [isModalOpenElegir, setModalOpenElegir] = useState(false);
   const [isEdit, setIsEdit] = useState(true);
   const [equipos, setEquipos] = useState([]);
