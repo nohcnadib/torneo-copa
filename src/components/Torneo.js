@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable default-case */
 // src/components/Torneo.js
 import React, { useState, useEffect } from 'react';
@@ -6,6 +7,7 @@ import { CheckIcon } from '@heroicons/react/outline';
 import { Football } from '@heroicons/react/outline';
 
 const Torneo = () => {
+  const REACT_APP_API_URL = process.env.REACT_APP_API_URL || 'https://torneo-copa.vercel.app';
   const [isModalOpenElegir, setModalOpenElegir] = useState(false);
   const [isEdit, setIsEdit] = useState(true);
   const [equipos, setEquipos] = useState([]);
@@ -31,7 +33,7 @@ const Torneo = () => {
 
   const fetchEquipos = async () => {
     try {
-      const response = await fetch('http://localhost:5000/equipos');
+      const response = await fetch(`${REACT_APP_API_URL}/equipos`);
       const data = await response.json();
       setEquipos(data);
     } catch (error) {

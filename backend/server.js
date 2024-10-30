@@ -1,25 +1,25 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
+const { createClient } = require('@libsql/client');
+
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
+// Configuración de CORS y JSON
 app.use(cors());
 app.use(express.json());
 
-// Conectar a la base de datos SQLite
-const db_name = path.join(__dirname, "data", "database.sqlite");
-const db = new sqlite3.Database(db_name, (err) => {
-  if (err) {
-    return console.error(err.message);
-  }
-  console.log('Conectado a la base de datos SQLite.');
+// Configuración de LibSQL
+const client = createClient({
+  url: process.env.TURSO_DB_URL,
+  authToken: process.env.TURSO_DB_TOKEN,
 });
 
 // Endpoint para obtener equipos
-app.get('/equipos', (req, res) => {
+app.get('/equipos', async (req, res) => {
   const sql = `
     SELECT e.*, 
       (SELECT COUNT(*) FROM titulo WHERE equipo = e.id) AS titulos,
@@ -40,13 +40,12 @@ app.get('/equipos', (req, res) => {
     FROM equipo e;
   `;
 
-  db.all(sql, [], (err, rows) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
+  try {
+    const { rows } = await client.execute(sql);
     res.json(rows);
-  });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // Función para barajar los equipos
