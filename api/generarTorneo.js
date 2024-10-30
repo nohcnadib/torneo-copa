@@ -7,9 +7,9 @@ const client = createClient({
 
 // Handler para el endpoint /api/generarTorneo
 module.exports = async (req, res) => {
-  if (req.method === 'POST') {
+  if (req.method === 'POST') { // Cambiado a POST
     const { teamIds } = req.body;
-    if (teamIds.length !== 8) {
+    if (!Array.isArray(teamIds) || teamIds.length !== 8) {
       return res.status(400).json({ error: 'Se deben seleccionar exactamente 8 equipos.' });
     }
     // Barajar los equipos para los cuartos de final
@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
     
     try {
       // Agregar aquí la serialización
-      await client.execute(`
+      const result = await client.execute(`
         INSERT INTO partido (teamL, teamV) VALUES 
         (?, ?), (?, ?), (?, ?), (?, ?)
       `, [
@@ -26,14 +26,19 @@ module.exports = async (req, res) => {
         shuffledTeams[4], shuffledTeams[5], 
         shuffledTeams[6], shuffledTeams[7]
       ]);
-      
+
+      // Obtener el último ID insertado
+      const lastInsertedId = result.lastID; // Cambié a result.lastID para obtener el último ID
+
       const cuartosIds = [
-        (await client.execute(`SELECT last_insert_rowid()`)).rows[0]['last_insert_rowid'] - 3,
-        (await client.execute(`SELECT last_insert_rowid()`)).rows[0]['last_insert_rowid'] - 2,
-        (await client.execute(`SELECT last_insert_rowid()`)).rows[0]['last_insert_rowid'] - 1,
-        (await client.execute(`SELECT last_insert_rowid()`)).rows[0]['last_insert_rowid']
+        lastInsertedId - 3,
+        lastInsertedId - 2,
+        lastInsertedId - 1,
+        lastInsertedId
       ];
 
+      console.log("cuartosIds")
+      console.log(cuartosIds)
       // Insertar en la tabla `cuartos`
       const { lastID: cuartosId } = await client.execute(`
         INSERT INTO cuartos (partido1, partido2, partido3, partido4) VALUES (?, ?, ?, ?)
@@ -44,6 +49,8 @@ module.exports = async (req, res) => {
         INSERT INTO partido (teamL, teamV) VALUES (NULL, NULL), (NULL, NULL)
       `);
 
+      console.log("semifinalesIds")
+      console.log(semifinalesIds)
       // Insertar en la tabla `semifinales`
       const { lastID: semifinalesId } = await client.execute(`
         INSERT INTO semifinales (partido1, partido2) VALUES (?, ?)
@@ -53,6 +60,8 @@ module.exports = async (req, res) => {
       const { lastID: finalId } = await client.execute(`
         INSERT INTO partido (teamL, teamV) VALUES (NULL, NULL)
       `);
+      console.log("finalId")
+      console.log(finalId)
 
       // Insertar en la tabla `finales`
       const { lastID: finalTorneoId } = await client.execute(`
