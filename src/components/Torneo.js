@@ -198,10 +198,9 @@ const Torneo = () => {
                   <tr>
                     <td>
                       <input
-                        type="number"
-                        value={resultado90L}
+                        value={resultado90L === 0 ? '0' : resultado90L}
                         onChange={(e) => {
-                          const value = Number(e.target.value);
+                          const value = e.target.value ? Number(e.target.value) : ''; // Permitir vacío
                           setResultado90L(value);
                           // Restablecer resultados 120 y P a 0 si cambia 90
                           setResultado120L(0);
@@ -218,9 +217,9 @@ const Torneo = () => {
                     <td>
                       <input
                         type="number"
-                        value={resultado90V}
+                        value={resultado90V === 0 ? '0' : resultado90V}
                         onChange={(e) => {
-                          const value = Number(e.target.value);
+                          const value = e.target.value ? Number(e.target.value) : ''; // Permitir vacío
                           setResultado90V(value);
                           // Restablecer resultados 120 y P a 0 si cambia 90
                           setResultado120L(0);
@@ -240,9 +239,9 @@ const Torneo = () => {
                     <td>
                       <input
                         type="number"
-                        value={resultado120L}
+                        value={resultado120L === 0 ? '0' : resultado120L}
                         onChange={(e) => {
-                          const value = Number(e.target.value);
+                          const value = e.target.value ? Number(e.target.value) : ''; // Permitir vacío
                           setResultado120L(value);
                           // Restablecer resultados P a 0 si cambia 120
                           setResultadoPL(0);
@@ -258,9 +257,9 @@ const Torneo = () => {
                     <td>
                       <input
                         type="number"
-                        value={resultado120V}
+                        value={resultado120V === 0 ? '0' : resultado120V}
                         onChange={(e) => {
-                          const value = Number(e.target.value);
+                          const value = e.target.value ? Number(e.target.value) : ''; // Permitir vacío
                           setResultado120V(value);
                           // Restablecer resultados P a 0 si cambia 120
                           setResultadoPL(0);
@@ -279,8 +278,8 @@ const Torneo = () => {
                     <td>
                       <input
                         type="number"
-                        value={resultadoPL}
-                        onChange={(e) => { setResultadoPL(Number(e.target.value)); }}
+                        value={resultadoPL === 0 ? '0' : resultadoPL}
+                        onChange={(e) => { setResultadoPL(e.target.value ? Number(e.target.value) : ''); }}
                         className="w-24 h-16 text-center"
                         disabled={resultado120L !== resultado120V || resultado90L !== resultado90V} // Deshabilitado si 120' o 90' son diferentes
                       />
@@ -291,8 +290,8 @@ const Torneo = () => {
                     <td>
                       <input
                         type="number"
-                        value={resultadoPV}
-                        onChange={(e) => { setResultadoPV(Number(e.target.value)); }}
+                        value={resultadoPV === 0 ? '0' : resultadoPV}
+                        onChange={(e) => { setResultadoPV(e.target.value ? Number(e.target.value) : ''); }}
                         className="w-24 h-16 text-center"
                         disabled={resultado120L !== resultado120V || resultado90L !== resultado90V} // Deshabilitado si 120' o 90' son diferentes
                       />
@@ -301,7 +300,6 @@ const Torneo = () => {
                 </div>
               </tbody>
             </table>
-
             <div className='w-full justify-center flex'>
               <img src={partido?.teamV?.logo ?? './assets/images/fakeLogo.png'} alt={partido?.teamV?.nombre} className="h-36" />
             </div>
@@ -533,6 +531,7 @@ const Torneo = () => {
             className="bg-blue-500 text-white p-2 rounded-md flex flex-col"
             onClick={openModalElegir}
           >
+            Elegir Equipos
             <svg xmlns="http://www.w3.org/2000/svg" height="50px" viewBox="0 -960 960 960" width="50px" fill="#e8eaed"><path d="M480-80q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Zm0-84q104-33 172-132t68-220v-189l-240-90-240 90v189q0 121 68 220t172 132Zm0-316Z"/></svg>
           </button>
         )}
